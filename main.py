@@ -6,20 +6,26 @@ from dadjokes import Dadjoke
 from pyowm import OWM
 from dotenv import load_dotenv
 
+# Loads env file with token
 load_dotenv('token.env')
 
+# Initialize token variables
 client = discord.Client()
+DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 WEATHER_TOKEN = os.getenv('WEATHER_TOKEN')
 owm = OWM(WEATHER_TOKEN)
 mgr = owm.weather_manager()
 
+# Returns a random quote (string) from zenquotes
 def get_quote():
   response = requests.get("https://zenquotes.io/api/random")
   json_data = json.loads(response.text)
   quote = json_data[0]['q'] + "-" + json_data[0]['a']
   return quote
 
+# Gets weather from API and returns info as a dictionary
 def get_weather(message):
+  # Parses string
   location = " "
   words = message.content.split(" ")
   word_count = 0
@@ -57,7 +63,7 @@ async def on_message(message):
     await message.channel.send("Hello!\nEnter \"help\" for information!")
     return
   
-  #tells a random dad joke
+  #tells a random dad joke if user sends a message containing phrase "joke"
   if 'joke' in message.content:
     dadjoke = Dadjoke()
     await message.channel.send(dadjoke.joke)
@@ -71,7 +77,7 @@ async def on_message(message):
     await message.channel.send(f"Hi {s.capitalize()}! I'm DadBot!")
     return
   
-  # tells weather
+  # tells weather based on user-provided location
   if 'weather' in message.content:
     weather_dict = get_weather(message)
     await message.channel.send(f"{weather_dict['location']} : {weather_dict['weather']} and it's {weather_dict['temperature']}\xb0F today!")
@@ -88,5 +94,5 @@ async def on_message(message):
     await message.channel.send(quote)
     return
 
-DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
+# Runs code on corresponding discord account/token
 client.run(DISCORD_TOKEN)
